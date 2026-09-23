@@ -1,8 +1,25 @@
 "use client";
 
+import axiosInstance from "@/lib/axios";
+import { AxiosError } from "axios";
 import { useFormik } from "formik";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import * as Yup from "yup";
+import { useRouter } from "next/navigation";
+
+type RegisterValues = {
+  email: string;
+  username: string;
+  password: string;
+  phoneNumber: string;
+};
 const RegisterForm = () => {
+  const [isloading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
   const validationSchema = Yup.object({
     email: Yup.string()
       .email("Invalid email format")
@@ -17,10 +34,9 @@ const RegisterForm = () => {
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
 
-  phoneNumber: Yup.string()
-  .matches(/^01\d{9}$/, "Please enter a valid Egyptian phone number")
-  .required("Phone number is required"),
-
+    phoneNumber: Yup.string()
+      .matches(/^01\d{9}$/, "Please enter a valid Egyptian phone number")
+      .required("Phone number is required"),
   });
 
   const RegisterFormikOBJ = useFormik({
@@ -31,8 +47,22 @@ const RegisterForm = () => {
       phoneNumber: "",
     },
 
-    onSubmit: (values) => {
+    onSubmit: async (values: RegisterValues) => {
       console.log(values);
+      setIsLoading(true);
+
+      try {
+        const { data } = await axiosInstance.post("/users/register", values);
+        toast.success("Sign in successfully 🎉");
+
+        router.push("/login");
+      } catch (error) {
+        const err = error as AxiosError<{ message: string }>;
+
+        toast.error(err.response?.data?.message || "Something went wrong ❌");
+      } finally {
+        setIsLoading(false);
+      }
     },
     validationSchema,
   });
@@ -67,7 +97,7 @@ const RegisterForm = () => {
         </div>
         <div>
           <label
-            htmlFor="email"
+            htmlFor="username"
             className="mb-2 block text-sm font-medium text-slate-700"
           >
             username
@@ -99,18 +129,26 @@ const RegisterForm = () => {
           >
             Password
           </label>
-
-          <input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Enter your password"
-            value={RegisterFormikOBJ.values.password}
-            onChange={RegisterFormikOBJ.handleChange}
-            onBlur={RegisterFormikOBJ.handleBlur}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100"
-          />
-
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              value={RegisterFormikOBJ.values.password}
+              onChange={RegisterFormikOBJ.handleChange}
+              onBlur={RegisterFormikOBJ.handleBlur}
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {RegisterFormikOBJ.touched.password &&
             RegisterFormikOBJ.errors.password && (
               <p className="mt-1 text-sm text-red-500">
@@ -120,7 +158,7 @@ const RegisterForm = () => {
         </div>
         <div>
           <label
-            htmlFor="email"
+            htmlFor="phoneNumber"
             className="mb-2 block text-sm font-medium text-slate-700"
           >
             phoneNumber
@@ -129,7 +167,7 @@ const RegisterForm = () => {
           <input
             id="phoneNumber"
             name="phoneNumber"
-            type="number"
+            type="tel"
             placeholder="Enter your phoneNumber"
             value={RegisterFormikOBJ.values.phoneNumber}
             onChange={RegisterFormikOBJ.handleChange}
@@ -146,9 +184,17 @@ const RegisterForm = () => {
         </div>
         <button
           type="submit"
-          className="w-full rounded-lg bg-indigo-600 px-4 py-3 font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-200 cursor-pointer"
+          disabled={isloading}
+          className="flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-3 font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Register
+          {isloading ? (
+            <>
+              <Loader2 size={18} className="animate-spin" />
+              Registering...
+            </>
+          ) : (
+            "Register"
+          )}
         </button>
       </form>
     </div>
