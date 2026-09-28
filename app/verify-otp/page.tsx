@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
+import VerifyOtpForm from "@/components/auth/OtpForm";
 
-export default function ForgotPasswordPage() {
+export default function VerifyOtpPage() {
 return (
 <div className="min-h-screen bg-slate-100 lg:grid lg:grid-cols-2">
 {/* {/* Left Side /} */}
@@ -21,17 +21,17 @@ E
         </div>
 
         <h1 className="text-3xl font-bold text-slate-900">
-          Forgot your password?
+          Verify your email
         </h1>
 
         <p className="mt-2 text-sm text-slate-500">
-          Enter your email and we&apos;ll send you a
-          verification code to reset your password.
+          Enter the verification code we sent to your
+          email to continue.
         </p>
       </div>
 
       {/* Form */}
-      <ForgotPasswordForm />
+      <VerifyOtpForm />
 
       {/* Back to Login */}
       <p className="mt-6 text-center text-sm text-slate-500">
@@ -46,11 +46,10 @@ E
     </div>
   </div>
 
-  {/* Right Side */}
   <div className="relative hidden overflow-hidden lg:block">
     <Image
       src="/images/login.jpg"
-      alt="Forgot Password"
+      alt="Verify Email"
       fill
       priority
       className="object-cover"
@@ -61,12 +60,11 @@ E
     <div className="absolute inset-0 flex items-end p-12">
       <div className="max-w-lg text-white">
         <h2 className="text-5xl font-bold leading-tight">
-          Don&apos;t worry, we&apos;ve got you covered.
+          One more step to get back in.
         </h2>
 
         <p className="mt-4 text-white/80">
-          Follow a few simple steps and get back into
-          your account.
+          Verify your email and securely reset your password.
         </p>
       </div>
     </div>
