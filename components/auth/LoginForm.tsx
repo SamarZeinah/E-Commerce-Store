@@ -54,11 +54,18 @@ export default function LoginForm() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        login(data.token, data.user);
+       login(data.token, data.user);
 
-        toast.success("Logged in successfully 🎉");
+toast.success("Logged in successfully 🎉");
 
-        router.push("/");
+if (data.user.isAdmin) {
+  router.push("/Dashboard");
+
+} else {
+  router.push("/");
+
+}
+
       } catch (error) {
         const err = error as AxiosError<{ message: string }>;
 
